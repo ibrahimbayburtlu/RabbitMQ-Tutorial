@@ -338,16 +338,26 @@ Once an acknowledgment is received, the message can be discarded from the queue.
 
 
 
+### Virtual Hosts
 
+Virtual hosts (or vhosts) in RabbitMQ provide a way to segregate applications using the same RabbitMQ instance. RabbitMQ vhosts create a logical group of connections, exchanges, queues, bindings, user permissions, etc. within an instance.
 
+Think of vhosts as individual, uniquely named containers. Inside each vhost container is a logical group of exchanges, connections, queues, bindings, user permissions, and other system resources.
 
+Different users can have different permissions to different vhost and queues and exchanges can be created, so they only exist in one vhost. When a client establishes a connection to the RabbitMQ server, it specifies the vhost within which it will operate.
 
+**Illustrated example with two virtual hosts – one for production and one for staging:**
 
+Resources such as exchanges and queues are named resources inside the vhost container, making each vhost essentially a RabbitMQ mini-server. When configuring RabbitMQ, at least one vhost is needed, which in default is just a slash “/”.
 
+Virtual hosts can be created through the management portal, through the HTTP API, or via rabbitmqctl. View vhosts by entering the admin tab and select the Virtual Hosts. Select the Add New Virtual Host option to create a new vhost.
 
+The permissions within the vhost and the users assigned to it depend on your system requirements, and it’s up to you to assign users to the vhost. A newly created vhost always has a default set of exchanges, but no other entities and no user permissions.
 
+**Screenshot of the Virtual Hosts view in the RabbitMQ Management interface:**
 
+Virtual hosts do not share exchanges or queues between them, and users, policies, etc. are unique to each vhost. Essentially, RabbitMQ vhosts are like a virtual machine for a physical server, allowing for multiple secure application operations through virtual rather than physical separation. As the separation is virtual, it is important to remember that the vhosts are not physically separated from each other and therefore they might affect each other’s performance.
 
+The same broker can be used on parts of different applications. You can separate environments, e.g. production to one vhost and staging to another vhost, within the same broker instead of setting up multiple brokers.
 
-
-
+If one service is experiencing a traffic spike or a code bug, this may cause problems for other services and affect their performance. A vhost can be created for each service to hold all of the logical infrastructure, which also allows for better individual topology management.
