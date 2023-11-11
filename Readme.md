@@ -233,3 +233,96 @@ Queue creation and maintenance are also sent through a channel. AMQP commands su
 
 A Channel can be opened right after successfully opening a connection.
 
+### Queues
+
+The queue is the place where messages are stored until they are consumed by the consumer, or in other ways removed from the queue. Queues have properties that define how they behave, and these properties are passed to the broker when the queue is declared.
+
+A queue has some required properties and some optional. A queue always has a name, so that services can reference them. A queue declared with no name is given a random name by most client libraries.
+
+A queue can be marked as durable, which specifies if the queue should survive a broker restart.
+
+A queue can be exclusive, which specifies if the queue can be used by only one connection. An exclusive queue is deleted when that connection closes.
+
+A queue can also be declared with the auto-delete property, meaning that a queue that has had at least one consumer is deleted when the last consumer unsubscribes.
+
+There are also some optional properties used by plugins and broker-specific features, like TTL, which is telling an unused queue when to expire after a period of time.
+
+Before a queue can be used it has to be declared. Declaring a queue will cause it to be created if it does not already exist.
+
+Let’s follow the life-cycle for a temporary message queue.
+
+1. The client creates the message queue (Declare). The server confirms (Declare-Ok).
+2. The client starts a consumer on the message queue.
+3. The client cancels the consumer, either explicitly or by closing the channel and/or connection.
+4. When the last consumer disappears from the message queue, the server deletes the message queue.
+
+
+### Bindings
+
+A binding is an association or relation between a queue and an exchange. It describes which queue is interested in messages from a given exchange. Bindings can take an extra parameter called `routing_key`. If you remember, a routing key can also be sent with a message. The routing key on the binding, sometimes called a binding key, and the routing key in the message are the things the exchange is looking at while delivering messages.
+
+```python
+channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key='black')
+```
+
+
+### Exchange Types and Examples
+
+Now it's time to further explain exchanges, routing keys, and bindings. We will talk about how exchanges and queues are associated with each other, and we will give examples of how you can use different exchange types in four different scenarios.
+
+#### Routing Messages to the Correct Queues
+
+The first thing to understand is that messages are not published directly to a queue. Instead, the Producer sends messages through an exchange. You can think of an exchange as a mail delivery person ensuring that the message ends up in the correct queue.
+
+How a message is routed depends on several things, including the exchange type, which specifies a number of routing rules, routing keys, and header attributes. These all act as addresses for messages.
+
+From a queue's perspective, you can check which exchanges and routing rules that are linked to this specific queue. These links are called bindings. A binding links the queue to an exchange, while the routing key is like an address for the message. This is mainly what the exchange looks for when deciding how to route the message to queues.
+
+#### Exchange Types
+
+In RabbitMQ, there are four main types of Exchanges:
+
+- **Direct**
+- **Topic**
+- **Fanout**
+- **Headers**
+
+Existing exchanges and types can be seen in the management interface or through rabbitmqadmin.
+
+#### Taxi Company Example
+
+We will use an example from a taxi company to explain the different exchange types. Every request for a taxi is made through an app that communicates with an application service that uses RabbitMQ.
+
+##### Direct Exchange
+
+Direct exchange directs the message to a specific queue by looking at the routing key. The routing key in the message is compared for equality with routing keys on bindings.
+
+In our example, the direct exchange is used when a user requests a specific taxi, like their favorite driver.
+
+##### Topic Exchange
+
+Topic exchange routes messages to one or many queues by looking at the routing key. The routing key in the message is compared for matches with routing key-patterns on the bindings.
+
+In our example, a customer with a group of friends asks for a large environmentally-friendly taxi. This order is routed through an exchange bound to taxis of this type.
+
+The routing key must be a list of words delimited by a period. The topic exchange supports "strict" routing key-matching, like a direct exchange, but will also perform "wildcard" matching using star (*) and hash (#) as placeholders.
+
+In another example, a customer orders a large taxi but does not care about the taxi type. The topic exchange routes this message to all taxis bound as a large taxi.
+
+##### Fanout Exchange
+
+Fanout exchange copies and routes a received message to all queues that are bound to it regardless of routing keys. A provided routing key is simply ignored.
+
+In our example, the Fanout Exchange is used when the taxi coordinators inform all taxi drivers about a blocked road.
+
+##### Headers Exchange
+
+Headers exchanges are very similar to topic exchanges but route messages based on the header values instead of routing keys.
+
+Headers exchanges are not very common, but in our example, it is used by a reporting service at the taxi company. Taxi car status data is sent to the exchange every now and then, and this data is used to build reports by other parts of the system.
+
+A special argument named "x-match" added in the binding between exchange and queue, specifies if headers must match "all" or "any".
+
+In this example, one service writes a report for all taxis around Manhattan, New York, keeping track of fuel consumption and miles traveled. This data is included in the message. When "x-match" is set to "any", together with the following arguments, the New York report receives all messages from taxis with trips from, to, or within New York. A trip that starts in New York and ends in Jersey will therefore be included.
+
+Another report may be interested in trips within New York alone. This can be achieved by simply setting the "x-match" to "all". The new report will then only get messages where "from" and "to" are both set to New York - trips that never leave the city.
