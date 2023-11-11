@@ -191,3 +191,45 @@ The RabbitMQ Management is a user-friendly interface that allows you to monitor 
 First of all, I set up a Queue named “image_scaling_queue”. Then, I create an image scaling Exchange. For this example, I use a Direct Exchange, which is one of four Exchange types. I set up a Binding from the image scaling Exchange to the image scaling Queue with the routing key named "image_scaling".
 
 I then publish a message to the images scaling exchange with the routing key "image_scaling". I now have one message ready in the queue.
+
+
+## AMQP Concepts – Deep Dive
+
+### Introduction 
+
+RabbitMQ implements an extension of the open standard AMQP 0.9.1 specification and serves as the foundation for a set of standards that control the entire message passing process.
+
+The version 0.9.1 was published in November 2008 and is the version that will be covered in this Training Tool. AMQP is a binary protocol, suitable for large amounts of data. It is optimized for machine efficiency and speed instead of human readability.
+
+Other valuable characteristic of the AMQP protocol are that it’s a multiple implementation standard, meaning that you can run AMQP with various brokers and other applications.
+
+#### AMQP Overview
+
+AMQP defines both the network layer protocol and a high-level architecture for message brokers. It establishes a set of message capabilities that must be available for an AMQP compliant server implementation. This includes rules on how messages must be routed and stored within the broker to follow the AMQ Model.
+
+AMQP is an application layer protocol that focuses on process-to-process communication across IP networks. An encoding schema and a set of procedures allow for two different servers to communicate regardless of the technology used.
+
+Overall, the goal of AMQP is to enable message passing through broker services over TCP/IP connections. AMQP is considered a compact protocol since it’s binary, meaning that everything sent over AMQP is binary data.
+
+### Connections and Channels
+
+In a conversation, parties greet each other, exchange verbal banter, and eventually continue on their way. A similar form of communication occurs over connections exposing lightweight channels in RabbitMQ.
+
+#### Connection
+
+A connection is a link between the Client and the Broker, performing underlying networking tasks. These tasks include initial authentication, IP resolution, and networking. RabbitMQ supports both IPv4 and IPv6 connections, and it is also possible to encrypt connections using TLS.
+
+A connection can multiplex into several "light-weight connections." This "lightweight connection" is called a Channel. Each Connection can maintain a set of underlying Channels. Services usually want to have multiple connections to the broker, but instead of having many heavy-weight connections, a service can reuse resources by creating and deleting Channels.
+
+#### Channel
+
+A Channel reuses a connection, forgoing the need to reauthorize and open a new TCP stream. Channels allow you to use resources more efficiently, and every AMQP protocol-related operation occurs over a Channel.
+
+A Connection is created by opening a physical TCP connection to the target server. The client resolves the hostname to one or more IP addresses before sending a handshake. The receiving server then authenticates the client.
+
+To send a message or manage queues, a Channel needs to be established. The channel packages the messages and handles protocol operations. Clients send messages through the channel's "basic_publish" method.
+
+Queue creation and maintenance are also sent through a channel. AMQP commands such as "queue.create" and "exchange.create" are all sent over a channel. Closing a connection closes all associated channels.
+
+A Channel can be opened right after successfully opening a connection.
+
