@@ -326,3 +326,28 @@ A special argument named "x-match" added in the binding between exchange and que
 In this example, one service writes a report for all taxis around Manhattan, New York, keeping track of fuel consumption and miles traveled. This data is included in the message. When "x-match" is set to "any", together with the following arguments, the New York report receives all messages from taxis with trips from, to, or within New York. A trip that starts in New York and ends in Jersey will therefore be included.
 
 Another report may be interested in trips within New York alone. This can be achieved by simply setting the "x-match" to "all". The new report will then only get messages where "from" and "to" are both set to New York - trips that never leave the city.
+
+
+
+### Consumer Acknowledgements and Publisher Confirm
+Messages in transit might get lost in the event of a connection failure and need to be retransmitted. Acknowledgments let the server and clients know when to retransmit messages. The client can either ack the message when it receives it, or when the client has completely processed the message. Publish confirm is the same concept but for publishing. The server confirms when it has received a message from a publisher.
+
+A message can be considered successfully delivered either immediately once it is sent out, once it’s written to a TCP socket, OR when an explicit acknowledgment is received from the client. The manually sent acknowledgment can be positive or negative.
+
+Once an acknowledgment is received, the message can be discarded from the queue. If the consumer cannot process a message, the desired outcome could be to requeue it and let another consumer receive and handle it, or to retry processing at a later time. Such deliveries can be discarded by the broker or requeued. This behavior is controlled by the requeue field. When the field is set to true, the broker will requeue the delivery. A requeued message is placed back into its original position in its queue, if possible, and can therefore immediately be ready for redelivery. If all consumers requeue because they cannot process a delivery, they create a requeue/redelivery loop. It is possible to track the number of redeliveries and reject messages for good (discard them) or schedule a requeue after a delay.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
