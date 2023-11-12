@@ -402,3 +402,28 @@ Listening connection points for different protocols can be found under Ports and
 #### Export and Import Definitions
 
 It is possible to import and export configuration definitions. When you download the definitions file, you obtain your tool's JSON representation and your RabbitMQ settings. This can be used to restore exchanges, queues, virtual hosts, policies, and users. This feature can be used as a backup. Whenever you make changes in the configuration, you can preserve old settings just in case.
+
+
+### Exchanges
+
+
+All exchanges can be listed from the exchange tab. Virtual host shows the vhost for the exchange, type is the exchange type such as direct, topic, headers, fanout. Features show the parameters for the exchange (i.e. D stands for durable, and AD for auto-delete). Features and types can be specified when the exchange is created. In this list, there are some amq.* exchanges and the default (unnamed) exchange, which are created by default.
+
+By clicking on the exchange name, a detailed page about the exchange is shown. You can see and add bindings to the exchange, and you can publish a message to the exchange or delete the exchange.
+
+
+
+
+
+### Queues and Bindings
+The Queues tab shows the queues for all or one selected vhost.
+
+Queues have different parameters and arguments depending on how they were created. The features column shows the parameters that belong to the queue. It could be features like:
+- **Durable queue:** Ensures that RabbitMQ will never lose the queue.
+- **Message TTL:** Specifies how long a message published to a queue can live before it is discarded.
+- **Auto expire:** Specifies how long a queue can be unused for before it is automatically deleted.
+- **Max length:** Specifies how many (ready) messages a queue can contain before it starts to drop them.
+- **Max length bytes:** Specifies the total body size for ready messages a queue can contain before it starts to drop them.
+
+These features and types can be specified when the queue is created.
+
