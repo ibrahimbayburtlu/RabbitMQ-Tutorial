@@ -361,3 +361,44 @@ Virtual hosts do not share exchanges or queues between them, and users, policies
 The same broker can be used on parts of different applications. You can separate environments, e.g. production to one vhost and staging to another vhost, within the same broker instead of setting up multiple brokers.
 
 If one service is experiencing a traffic spike or a code bug, this may cause problems for other services and affect their performance. A vhost can be created for each service to hold all of the logical infrastructure, which also allows for better individual topology management.
+
+
+## The Management Interface
+
+
+The RabbitMQ Management interface is a user-friendly way to monitor and handle your RabbitMQ server from a web browser. Among other things, queues, connections, channels, exchanges, users, and user permissions can be handled (created, deleted, and listed) in the browser. You can monitor message rates and send/receive messages manually.
+
+RabbitMQ Management is a plugin that can be enabled for RabbitMQ. More information about how to enable and disable plugins will be shown in the upcoming sections. The management interface gives a single static HTML page that makes background queries to the HTTP API for RabbitMQ. Information from the management interface can be useful when you are debugging your applications or when you need an overview of the whole system. For example, if you see that the number of unacked messages is getting high, it could mean that your consumers are getting slow. If you need to check if an exchange is working, you can try to send a test message.
+
+A link to the RabbitMQ management interface can be found on the details page for your hosted RabbitMQ solution on your CloudAMQP instance.
+
+
+### Overview
+
+Let's delve into the first view, the Overview, which provides a quick and easily understandable snapshot of the RabbitMQ status.
+
+The Overview consists of two graphs: one for pending messages and the other for message rates. By clicking on the text *(graph: last minute)* above the graphs, you can change the time interval displayed on the graph. Access to information about all different message states can be obtained by clicking on the question mark *(?)*.
+
+- **Pending Messages:** Displays the total number of pending messages for all your queues.
+- **Ready Messages:** Indicates the number of messages ready to be delivered.
+- **Unacknowledged:** Represents the number of messages the server is awaiting acknowledgment.
+
+- **Message Rates Graph:** Illustrates the rate at which messages are being processed. *Publish* shows the rate at which messages enter the server, and *Confirm* displays the server's acknowledgment rate.
+
+- **Overall Counts:** Shows the total number of connections, channels, exchanges, queues, and consumers for all virtual hosts accessible to the current user.
+
+#### Nodes
+
+A cluster in RabbitMQ can contain one or more nodes (servers). The Nodes view provides information about different nodes in the RabbitMQ cluster. Here, you can find information about server memory, the number of Erlang processes per node, and other node-specific details. The Information section provides more details about the node and active plugins.
+
+#### Loss Rate
+
+Connection/channel opening/closing rates are essential metrics that need to be monitored. High connection and channel loss can lead to exhaustion of node resources.
+
+#### Ports and Bindings
+
+Listening connection points for different protocols can be found under Ports and Bindings, as shown in the image above.
+
+#### Export and Import Definitions
+
+It is possible to import and export configuration definitions. When you download the definitions file, you obtain your tool's JSON representation and your RabbitMQ settings. This can be used to restore exchanges, queues, virtual hosts, policies, and users. This feature can be used as a backup. Whenever you make changes in the configuration, you can preserve old settings just in case.
